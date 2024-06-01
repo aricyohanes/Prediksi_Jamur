@@ -106,7 +106,7 @@ def user_input_features():
 user_input = user_input_features()
 if st.button("Prediksi"):
     prediction = rf.predict(user_input)
-    result = 'Beracun' if prediction[0] == 1 else 'Tidak Beracun'
+    result = 'Beracun' if prediction[0] == 1 else 'Dapat Dimakan'
     st.write(f"Jamur tersebut: {result}")
 
 # Link dataset
