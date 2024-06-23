@@ -81,9 +81,13 @@ rf.fit(X_train, y_train)
 y_pred = rf.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 
+# Link dataset
+url_dataset = "https://www.kaggle.com/datasets/uciml/mushroom-classification"
+
 # Streamlit app
 st.title("Klasifikasi Jamur")
 st.write(f"Akurasi Model: {accuracy:.2f}")
+st.markdown(f"Link Dataset: [{url_dataset}]({url_dataset})")
 
 # User input for prediction
 st.header("Prediksi Keberacunan Jamur")
@@ -108,6 +112,3 @@ if st.button("Prediksi"):
     prediction = rf.predict(user_input)
     result = 'Beracun' if prediction[0] == 1 else 'Dapat Dimakan'
     st.write(f"Jamur tersebut: {result}")
-
-# Link dataset
-# https://www.kaggle.com/datasets/uciml/mushroom-classification
