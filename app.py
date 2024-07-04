@@ -65,12 +65,24 @@ def load_data():
         data[column] = data[column].astype('category').cat.codes
     return data, modus_stalk_root
 
-# Load data
+# Function to select relevant features based on correlation
+def select_relevant_features(data, threshold=0.2):
+    correlation_matrix = data.corr()
+    correlation_target = correlation_matrix['class'].abs().sort_values(ascending=False)
+    relevant_features = correlation_target[correlation_target > threshold]
+    selected_features = relevant_features.index.tolist()
+    selected_features.remove('class')
+    return data[selected_features + ['class']]
+
+# Load and preprocess data
 data, modus_stalk_root = load_data()
 
+# Select relevant features
+data_selected = select_relevant_features(data, threshold=0.2)
+
 # Split data
-X = data.drop('class', axis=1)
-y = data['class']
+X = data_selected.drop('class', axis=1)
+y = data_selected['class']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Train model
@@ -90,7 +102,7 @@ st.write(f"Akurasi Model: {accuracy:.2f}")
 st.markdown(f"Link Dataset: [{url_dataset}]({url_dataset})")
 
 # User input for prediction
-st.header("Prediksi Keberacunan Jamur")
+st.header("Prediksi Jamur Beracun")
 
 def user_input_features():
     input_data = {}
