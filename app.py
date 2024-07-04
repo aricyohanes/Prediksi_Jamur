@@ -66,7 +66,7 @@ def load_data():
     return data, modus_stalk_root
 
 # Function to select relevant features based on correlation
-def select_relevant_features(data, threshold=0.25):
+def select_relevant_features(data, threshold=0.3):
     correlation_matrix = data.corr()
     correlation_target = correlation_matrix['class'].abs().sort_values(ascending=False)
     relevant_features = correlation_target[correlation_target > threshold]
@@ -78,7 +78,7 @@ def select_relevant_features(data, threshold=0.25):
 data, modus_stalk_root = load_data()
 
 # Select relevant features
-data_selected = select_relevant_features(data, threshold=0.25)
+data_selected = select_relevant_features(data, threshold=0.3)
 
 # Split data
 X = data_selected.drop('class', axis=1)
