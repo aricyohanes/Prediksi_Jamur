@@ -53,57 +53,61 @@ feature_descriptions = {
     'habitat': 'Habitat'
 }
 
-# Function to load and preprocess data
+# Fungsi untuk memuat dan memproses data
 @st.cache
 def load_data():
-    url = "mushrooms.csv"
-    data = pd.read_csv(url)
-    data = data.drop('veil-type', axis=1)
+    url = "mushrooms.csv"  # URL dataset
+    data = pd.read_csv(url)  # Membaca data dari file CSV
+    data = data.drop('veil-type', axis=1)  # Menghapus kolom 'veil-type' yang tidak berguna
+    # Mengganti nilai '?' pada kolom 'stalk-root' dengan modus
     modus_stalk_root = data[data['stalk-root'] != '?']['stalk-root'].mode()[0]
     data['stalk-root'] = data['stalk-root'].replace('?', modus_stalk_root)
+    # Mengubah tipe data setiap kolom menjadi kategori dan mengkodekan kategori
     for column in data.columns:
         data[column] = data[column].astype('category').cat.codes
     return data, modus_stalk_root
 
-# Function to select relevant features based on correlation
-def select_relevant_features(data, threshold=0.3):
-    correlation_matrix = data.corr()
-    correlation_target = correlation_matrix['class'].abs().sort_values(ascending=False)
-    relevant_features = correlation_target[correlation_target > threshold]
-    selected_features = relevant_features.index.tolist()
-    selected_features.remove('class')
-    return data[selected_features + ['class']]
+# Fungsi untuk memilih fitur yang relevan berdasarkan korelasi
+def select_relevant_features(data, threshold=0.4):
+    correlation_matrix = data.corr()  # Menghitung matriks korelasi
+    correlation_target = correlation_matrix['class'].abs().sort_values(ascending=False)  # Korelasi terhadap target
+    relevant_features = correlation_target[correlation_target > threshold]  # Memilih fitur yang relevan
+    selected_features = relevant_features.index.tolist()  # Mendapatkan daftar fitur yang terpilih
+    selected_features.remove('class')  # Menghapus 'class' dari daftar fitur
+    return data[selected_features + ['class']]  # Mengembalikan data dengan fitur yang terpilih
 
-# Load and preprocess data
+# Memuat dan memproses data
 data, modus_stalk_root = load_data()
 
-# Select relevant features
-data_selected = select_relevant_features(data, threshold=0.3)
+# Memilih fitur yang relevan
+data_selected = select_relevant_features(data, threshold=0.4)
 
-# Split data
+# Memisahkan data menjadi fitur dan target
 X = data_selected.drop('class', axis=1)
 y = data_selected['class']
+# Membagi data menjadi data latih dan data uji
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Train model
+# Melatih model
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)
 
-# Predict and evaluate
+# Memprediksi dan mengevaluasi
 y_pred = rf.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 
 # Link dataset
 url_dataset = "https://www.kaggle.com/datasets/uciml/mushroom-classification"
 
-# Streamlit app
+# Aplikasi Streamlit
 st.title("Klasifikasi Jamur")
 st.write(f"Akurasi Model: {accuracy:.2f}")
 st.markdown(f"Link Dataset: [{url_dataset}]({url_dataset})")
 
-# User input for prediction
+# Input pengguna untuk prediksi
 st.header("Prediksi Jamur Beracun")
 
+# Fungsi untuk mendapatkan input pengguna
 def user_input_features():
     input_data = {}
     original_data = pd.read_csv("mushrooms.csv").drop('veil-type', axis=1)
@@ -119,6 +123,7 @@ def user_input_features():
             st.error(f"Nilai {option} tidak ditemukan dalam pemetaan untuk {feature}")
     return pd.DataFrame([input_data])
 
+# Mendapatkan input pengguna dan melakukan prediksi
 user_input = user_input_features()
 if st.button("Prediksi"):
     prediction = rf.predict(user_input)
